@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz World - Advanced Quiz</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Segoe UI',sans-serif;
+      scroll-behavior:smooth;
+    }
+
+    body{
+      background:black;
+      color:white;
+      overflow-x:hidden;
+    }
+
+    header{
+      text-align:center;
+      padding:25px;
+      background:linear-gradient(90deg,#ff0080,#00d9ff,#00ff6a);
+      position:sticky;
+      top:0;
+      z-index:999;
+      box-shadow:0 0 20px rgba(0,255,255,0.6);
+    }
+
+    header h1{
+      font-size:42px;
+      font-weight:900;
+      color:white;
+      text-shadow:0 0 15px black;
+      letter-spacing:2px;
+    }
+
+    header p{
+      margin-top:8px;
+      font-weight:bold;
+      color:black;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+      padding:30px 15px;
+    }
+
+    .category-select{
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:20px;
+    }
+
+    .category-select button{
+      padding:12px 18px;
+      border:none;
+      border-radius:15px;
+      cursor:pointer;
+      font-size:15px;
+      font-weight:bold;
+      background:linear-gradient(90deg,#ff0080,#00d9ff);
+      color:black;
+      transition:0.3s;
+      box-shadow:0 0 12px rgba(0,255,255,0.4);
+    }
+
+    .category-select button:hover{
+      transform:scale(1.08);
+      box-shadow:0 0 20px rgba(255,0,200,0.8);
+    }
+
+    .quiz-box{
+      background:rgba(255,255,255,0.05);
+      border:2px solid rgba(0,255,255,0.2);
+      padding:25px;
+      border-radius:20px;
+      box-shadow:0 0 20px rgba(255,0,255,0.2);
+      animation:fadeIn 0.8s ease;
+    }
+
+    .quiz-title{
+      text-align:center;
+      font-size:28px;
+      font-weight:900;
+      padding:12px;
+      border-radius:15px;
+      background:linear-gradient(90deg,#ff0000,#ffcc00,#00ff6a,#00d9ff,#aa00ff);
+      color:black;
+      margin-bottom:20px;
+    }
+
+    .timer-box{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:15px;
+      font-size:18px;
+      font-weight:bold;
+      color:cyan;
+    }
+
+    .progress-bar{
+      width:100%;
+      height:15px;
+      background:#111;
+      border-radius:10px;
+      overflow:hidden;
+      border:1px solid rgba(0,255,255,0.4);
+      margin-bottom:20px;
+    }
+
+    .progress{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#ff0080,#00d9ff,#00ff6a);
+      transition:0.4s;
+    }
+
+    .question{
+      font-size:22px;
+      font-weight:bold;
+      margin-bottom:18px;
+      background:linear-gradient(90deg,#ff0080,#00d9ff,#00ff6a);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .options{
+      display:grid;
+      gap:12px;
+    }
+
+    .options button{
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      cursor:pointer;
+      background:#111;
+      color:white;
+      border:2px solid rgba(0,255,255,0.3);
+      transition:0.3s;
+    }
+
+    .options button:hover{
+      transform:scale(1.03);
+      background:linear-gradient(90deg,#ff0080,#00d9ff);
+      color:black;
+      font-weight:bold;
+    }
+
+    .options button:disabled{
+      cursor:not-allowed;
+      opacity:0.7;
+    }
+
+    .result{
+      margin-top:18px;
+      font-size:18px;
+      font-weight:bold;
+      text-align:center;
+    }
+
+    .next-btn{
+      margin-top:20px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:15px;
+      background:linear-gradient(90deg,#ff0080,#00d9ff);
+      color:black;
+      font-weight:bold;
+      font-size:18px;
+      cursor:pointer;
+      transition:0.3s;
+      display:none;
+    }
+
+    .next-btn:hover{
+      transform:scale(1.05);
+      box-shadow:0 0 20px rgba(0,255,255,0.8);
+    }
+
+    .score-box{
+      margin-top:20px;
+      padding:12px;
+      text-align:center;
+      border-radius:15px;
+      background:rgba(255,255,255,0.06);
+      border:2px solid rgba(0,255,255,0.3);
+      font-size:20px;
+      font-weight:bold;
+      color:cyan;
+    }
+
+    footer{
+      text-align:center;
+      padding:20px;
+      background:#0a0a0a;
+      color:#aaa;
+      margin-top:30px;
+      border-top:2px solid rgba(255,255,255,0.1);
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(40px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🌟 QUIZ WORLD 🌟</h1>
+  <p>Advanced Quiz | Timer | Progress Bar | Random Questions</p>
+</header>
+
+<div class="container">
+
+  <div class="category-select">
+    <button onclick="loadCategory('gk')">🌍 GK</button>
+    <button onclick="loadCategory('science')">🔬 Science</button>
+    <button onclick="loadCategory('daily')">🏠 Daily Life</button>
+    <button onclick="loadCategory('islamic')">🕌 Islamic</button>
+    <button onclick="loadCategory('computer')">💻 Computer</button>
+    <button onclick="loadCategory('math')">➗ Math</button>
+    <button onclick="loadCategory('english')">📘 English</button>
+    <button onclick="loadCategory('sports')">🏆 Sports</button>
+  </div>
+
+  <div class="quiz-box" id="quizBox">
+    <div class="quiz-title" id="quizTitle">Select a Category to Start Quiz</div>
+
+    <div class="timer-box">
+      <div>⏳ Time Left: <span id="timer">0</span>s</div>
+      <div>📌 Question: <span id="qno">0</span>/<span id="total">0</span></div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="question" id="questionText">Choose a category above 👆</div>
+
+    <div class="options" id="optionsBox"></div>
+
+    <div class="result" id="resultText"></div>
+
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question ➡</button>
+
+    <div class="score-box">
+      Score: <span id="score">0</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <h3 style="color:cyan;">🌟 Quiz World 🌟</h3>
+  <p>Made with ❤️ | Full Advanced Quiz Website</p>
+</footer>
+
+<script>
+  // SOUND EFFECTS
+  const correctSound = new Audio("https://www.soundjay.com/buttons/sounds/button-09.mp3");
+  const wrongSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
+
+  const allQuestions = {
+    gk: [
+      {q:"What is the capital of Pakistan?", options:["Karachi","Islamabad","Lahore","Quetta"], answer:1},
+      {q:"Which is the largest continent?", options:["Asia","Europe","Africa","Australia"], answer:0},
+      {q:"Who is the founder of Pakistan?", options:["Allama Iqbal","Quaid-e-Azam","Liaquat Ali Khan","Sir Syed"], answer:1},
+      {q:"Currency of Japan?", options:["Dollar","Yen","Riyal","Rupee"], answer:1},
+      {q:"Largest ocean?", options:["Atlantic","Indian","Pacific","Arctic"], answer:2},
+      {q:"Capital of China?", options:["Beijing","Shanghai","Tokyo","Seoul"], answer:0},
+      {q:"Highest mountain?", options:["K2","Everest","Nanga Parbat","Kilimanjaro"], answer:1},
+      {q:"Smallest country?", options:["Vatican City","Pakistan","India","China"], answer:0},
+      {q:"National animal of Pakistan?", options:["Tiger","Markhor","Lion","Elephant"], answer:1},
+      {q:"Eiffel Tower is in?", options:["Italy","France","Spain","Germany"], answer:1},
+      {q:"Capital of Turkey?", options:["Ankara","Istanbul","Izmir","Antalya"], answer:0},
+      {q:"Capital of UAE?", options:["Dubai","Abu Dhabi","Sharjah","Ajman"], answer:1},
+      {q:"Largest desert?", options:["Sahara","Thar","Gobi","Kalahari"], answer:0},
+      {q:"Capital of UK?", options:["London","Manchester","Birmingham","Liverpool"], answer:0},
+      {q:"Capital of USA?", options:["New York","Washington DC","Los Angeles","Chicago"], answer:1}
+    ],
+
+    science: [
+      {q:"Chemical formula of water?", options:["CO2","H2O","O2","NaCl"], answer:1},
+      {q:"Which gas plants absorb?", options:["Oxygen","CO2","Nitrogen","Helium"], answer:1},
+      {q:"Organ pumps blood?", options:["Brain","Heart","Liver","Lungs"], answer:1},
+      {q:"Boiling point of water?", options:["50°C","100°C","150°C","200°C"], answer:1},
+      {q:"Closest planet to Sun?", options:["Earth","Venus","Mercury","Mars"], answer:2},
+      {q:"Hardest substance?", options:["Iron","Diamond","Gold","Silver"], answer:1},
+      {q:"Vitamin from sunlight?", options:["A","B","C","D"], answer:3},
+      {q:"Unit of force?", options:["Watt","Newton","Joule","Volt"], answer:1},
+      {q:"Speed of light?", options:["300,000 km/s","100,000 km/s","500,000 km/s","200,000 km/s"], answer:0},
+      {q:"Largest organ?", options:["Brain","Skin","Heart","Kidney"], answer:1},
+      {q:"Gas for breathing?", options:["Oxygen","Nitrogen","CO2","Helium"], answer:0},
+      {q:"Nearest star?", options:["Moon","Sun","Sirius","Polaris"], answer:1},
+      {q:"DNA full form?", options:["Deoxyribo Nucleic Acid","Digital Net Area","Data New Access","None"], answer:0},
+      {q:"Blood group universal donor?", options:["A","B","AB","O"], answer:3},
+      {q:"Earth is ___ planet from Sun?", options:["1st","2nd","3rd","4th"], answer:2}
+    ],
+
+    daily: [
+      {q:"Why wash hands before eating?", options:["Fun","Remove germs","Waste time","No reason"], answer:1},
+      {q:"Why drink water daily?", options:["Hydration","Sleep","Fly","Run fast"], answer:0},
+      {q:"Why exercise important?", options:["Weakness","Health","Sleepy","No benefit"], answer:1},
+      {q:"Why save electricity?", options:["Increase bill","Save energy","No reason","Waste"], answer:1},
+      {q:"Why cleanliness important?", options:["Prevents diseases","No reason","Dirty","Waste"], answer:0},
+      {q:"Why respect elders?", options:["They are older","No reason","To fight","To cheat"], answer:0},
+      {q:"Healthy food benefit?", options:["Good health","Weakness","Disease","None"], answer:0},
+      {q:"Best habit?", options:["Lying","Honesty","Fighting","Cheating"], answer:1},
+      {q:"Why sleep early?", options:["Health","Weakness","No reason","Bad"], answer:0},
+      {q:"What to do in fever?", options:["Drink water","Eat junk","No rest","Run"], answer:0},
+      {q:"Why recycle waste?", options:["Reduce pollution","Increase waste","Destroy","None"], answer:0},
+      {q:"Why read books?", options:["Knowledge","Blind","No reason","Decrease memory"], answer:0},
+      {q:"Why help others?", options:["Good deed","Bad","Waste","None"], answer:0},
+      {q:"Why eat fruits?", options:["Vitamins","Poison","Sick","None"], answer:0},
+      {q:"Why brush teeth?", options:["Clean teeth","No reason","Pain","Waste"], answer:0}
+    ],
+
+    islamic: [
+      {q:"How many pillars of Islam?", options:["3","4","5","6"], answer:2},
+      {q:"Holy book of Muslims?", options:["Bible","Torah","Quran","Gita"], answer:2},
+      {q:"How many prayers daily?", options:["3","4","5","6"], answer:2},
+      {q:"What is Zakat?", options:["Charity","Fasting","Prayer","Hajj"], answer:0},
+      {q:"What is Hajj?", options:["Festival","Pilgrimage","Game","Book"], answer:1},
+      {q:"City of Prophet (PBUH)?", options:["Makkah","Madina","Taif","Jerusalem"], answer:1},
+      {q:"Surahs in Quran?", options:["100","114","120","130"], answer:1},
+      {q:"Direction of prayer?", options:["Hijrah","Qibla","Salah","Zakat"], answer:1},
+      {q:"First Islamic month?", options:["Ramadan","Muharram","Safar","Shaban"], answer:1},
+      {q:"Fasting called?", options:["Hajj","Roza","Zakat","Salah"], answer:1},
+      {q:"Holiest mosque?", options:["Masjid Nabawi","Masjid Aqsa","Masjid Haram","Badshahi"], answer:2},
+      {q:"Meaning of Islam?", options:["Peace","War","Fear","Anger"], answer:0},
+      {q:"Last Prophet?", options:["Musa","Isa","Muhammad (PBUH)","Ibrahim"], answer:2},
+      {q:"Quran revealed in?", options:["Arabic","English","Urdu","Persian"], answer:0},
+      {q:"Eid-ul-Fitr comes after?", options:["Hajj","Ramadan","Muharram","Safar"], answer:1}
+    ],
+
+    computer: [
+      {q:"CPU full form?", options:["Central Power Unit","Central Processing Unit","Control Program Unit","Computer Personal Unit"], answer:1},
+      {q:"RAM full form?", options:["Random Access Memory","Read Access Memory","Rapid Action Memory","Run All Memory"], answer:0},
+      {q:"WWW full form?", options:["World Wide Web","Web World Wide","Wide Web World","None"], answer:0},
+      {q:"HTML is?", options:["Programming","Markup","Database","OS"], answer:1},
+      {q:"CSS used for?", options:["Designing","Programming","Virus","Hardware"], answer:0},
+      {q:"JavaScript is?", options:["Styling","Scripting","Hardware","OS"], answer:1},
+      {q:"Operating System is?", options:["Software","Hardware","Virus","Browser"], answer:0},
+      {q:"Typing device?", options:["Monitor","Keyboard","Mouse","Printer"], answer:1},
+      {q:"Printing device?", options:["Keyboard","Mouse","Printer","CPU"], answer:2},
+      {q:"Computer virus is?", options:["Game","Harmful program","Update","Tool"], answer:1},
+      {q:"USB full form?", options:["Universal Serial Bus","Unique System Board","Ultra Speed Bus","None"], answer:0},
+      {q:"Email means?", options:["Electronic mail","Easy mail","Extra mail","Engine mail"], answer:0},
+      {q:"Internet is?", options:["Network","Book","TV","Radio"], answer:0},
+      {q:"Browser is?", options:["Search engine","Website software","Virus","CPU"], answer:1},
+      {q:"Search engine?", options:["Google","Windows","CPU","RAM"], answer:0}
+    ],
+
+    math: [
+      {q:"10% of 200?", options:["10","20","30","40"], answer:1},
+      {q:"15×6=?", options:["60","70","80","90"], answer:3},
+      {q:"Square root of 144?", options:["10","11","12","13"], answer:2},
+      {q:"25+75=?", options:["90","100","110","120"], answer:1},
+      {q:"100÷5=?", options:["10","15","20","25"], answer:2},
+      {q:"12²=?", options:["124","144","164","184"], answer:1},
+      {q:"Sum of angles of triangle?", options:["90°","180°","270°","360°"], answer:1},
+      {q:"50% of 500?", options:["100","200","250","300"], answer:2},
+      {q:"7×9=?", options:["63","72","81","90"], answer:0},
+      {q:"Pi value?", options:["2.14","3.14","4.14","5.14"], answer:1},
+      {q:"5³=?", options:["25","125","75","100"], answer:1},
+      {q:"9×9=?", options:["81","72","90","99"], answer:0},
+      {q:"200-50=?", options:["100","150","180","200"], answer:1},
+      {q:"20+30=?", options:["40","50","60","70"], answer:1},
+      {q:"Area of circle formula?", options:["2πr","πr²","l×w","r²"], answer:1}
+    ],
+
+    english: [
+      {q:"What is noun?", options:["Name word","Action word","Describing","Pronoun"], answer:0},
+      {q:"What is verb?", options:["Name","Action","Color","Place"], answer:1},
+      {q:"What is adjective?", options:["Action","Name","Describing","Pronoun"], answer:2},
+      {q:"Plural of child?", options:["Childs","Children","Childes","Childer"], answer:1},
+      {q:"Opposite of hot?", options:["Warm","Cold","Fire","Heat"], answer:1},
+      {q:"Synonym of happy?", options:["Sad","Angry","Joyful","Weak"], answer:2},
+      {q:"Past tense of go?", options:["Went","Goed","Going","Gone"], answer:0},
+      {q:"Past tense of eat?", options:["Eated","Ate","Eat","Eating"], answer:1},
+      {q:"Meaning of honest?", options:["Truthful","Liar","Weak","Lazy"], answer:0},
+      {q:"Opposite of big?", options:["Large","Huge","Small","Strong"], answer:2},
+      {q:"Plural of mouse?", options:["Mouses","Mice","Mousees","Mous"], answer:1},
+      {q:"Sentence is?", options:["Group of words","Random letters","One word","Number"], answer:0},
+      {q:"Paragraph is?", options:["Group of sentences","One word","One letter","Verb"], answer:0},
+      {q:"Opposite of fast?", options:["Quick","Slow","Run","Jump"], answer:1},
+      {q:"Synonym of smart?", options:["Clever","Weak","Bad","Angry"], answer:0}
+    ],
+
+    sports: [
+      {q:"Players in cricket team?", options:["9","10","11","12"], answer:2},
+      {q:"Players in football team?", options:["9","10","11","12"], answer:2},
+      {q:"Olympic rings?", options:["4","5","6","7"], answer:1},
+      {q:"Wimbledon is for?", options:["Cricket","Tennis","Football","Hockey"], answer:1},
+      {q:"Hat-trick means?", options:["3 goals","2 goals","1 goal","4 goals"], answer:0},
+      {q:"FIFA 2022 winner?", options:["Brazil","France","Argentina","Germany"], answer:2},
+      {q:"National sport of Pakistan?", options:["Cricket","Football","Hockey","Tennis"], answer:2},
+      {q:"Racket used in?", options:["Cricket","Tennis","Football","Boxing"], answer:1},
+      {q:"Bat and ball game?", options:["Cricket","Hockey","Football","Tennis"], answer:0},
+      {q:"Football match duration?", options:["60 min","90 min","120 min","30 min"], answer:1},
+      {q:"Shuttlecock used in?", options:["Badminton","Cricket","Football","Golf"], answer:0},
+      {q:"Overs in T20?", options:["10","15","20","50"], answer:2},
+      {q:"Wickets in cricket?", options:["5","8","10","12"], answer:2},
+      {q:"King of sports?", options:["Football","Cricket","Hockey","Tennis"], answer:0},
+      {q:"Gloves sport?", options:["Boxing","Tennis","Cricket","Golf"], answer:0}
+    ]
+  };
+
+  let questions = [];
+  let currentQuestion = 0;
+  let score = 0;
+  let timer;
+  let timeLeft = 15; // 15 seconds each question
+
+  function shuffleArray(arr){
+    return arr.sort(()=>Math.random()-0.5);
+  }
+
+  function loadCategory(cat){
+    questions = shuffleArray([...allQuestions[cat]]);
+    currentQuestion = 0;
+    score = 0;
+
+    document.getElementById("score").innerText = score;
+    document.getElementById("total").innerText = questions.length;
+    document.getElementById("quizBox").style.animation = "fadeIn 0.8s ease";
+
+    let titleMap = {
+      gk: "🌍 General Knowledge Quiz",
+      science: "🔬 Science Quiz",
+      daily: "🏠 Daily Life Quiz",
+      islamic: "🕌 Islamic Quiz",
+      computer: "💻 Computer Quiz",
+      math: "➗ Math Quiz",
+      english: "📘 English Quiz",
+      sports: "🏆 Sports Quiz"
+    };
+
+    document.getElementById("quizTitle").innerText = titleMap[cat];
+    loadQuestion();
+  }
+
+  function startTimer(){
+    clearInterval(timer);
+    timeLeft = 15;
+    document.getElementById("timer").innerText = timeLeft;
+
+    timer = setInterval(()=>{
+      timeLeft--;
+      document.getElementById("timer").innerText = timeLeft;
+
+      if(timeLeft <= 0){
+        clearInterval(timer);
+        autoWrong();
+      }
+    },1000);
+  }
+
+  function updateProgress(){
+    let percent = ((currentQuestion) / questions.length) * 100;
+    document.getElementById("progress").style.width = percent + "%";
+  }
+
+  function loadQuestion(){
+    document.getElementById("resultText").innerHTML = "";
+    document.getElementById("nextBtn").style.display = "none";
+
+    document.getElementById("qno").innerText = currentQuestion + 1;
+
+    updateProgress();
+    startTimer();
+
+    const qData = questions[currentQuestion];
+    document.getElementById("questionText").innerText = (currentQuestion + 1) + ". " + qData.q;
+
+    const optionsBox = document.getElementById("optionsBox");
+    optionsBox.innerHTML = "";
+
+    qData.options.forEach((opt, index)=>{
+      const btn = document.createElement("button");
+      btn.innerText = opt;
+      btn.onclick = ()=>checkAnswer(index);
+      optionsBox.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(selectedIndex){
+    clearInterval(timer);
+
+    const qData = questions[currentQuestion];
+    const resultText = document.getElementById("resultText");
+    const optionButtons = document.querySelectorAll("#optionsBox button");
+
+    optionButtons.forEach(btn=>btn.disabled=true);
+
+    if(selectedIndex === qData.answer){
+      correctSound.play();
+      resultText.style.color="#00ff6a";
+      resultText.innerHTML="✅ Correct Answer!";
+      score++;
+    } else {
+      wrongSound.play();
+      resultText.style.color="red";
+      resultText.innerHTML="❌ Wrong Answer! <br> Correct Answer: <b style='color:cyan;'>" + qData.options[qData.answer] + "</b>";
+    }
+
+    document.getElementById("score").innerText = score;
+    document.getElementById("nextBtn").style.display="block";
+  }
+
+  function autoWrong(){
+    const qData = questions[currentQuestion];
+    const resultText = document.getElementById("resultText");
+
+    wrongSound.play();
+    resultText.style.color="orange";
+    resultText.innerHTML="⏰ Time Over! <br> Correct Answer: <b style='color:cyan;'>" + qData.options[qData.answer] + "</b>";
+
+    const optionButtons = document.querySelectorAll("#optionsBox button");
+    optionButtons.forEach(btn=>btn.disabled=true);
+
+    document.getElementById("nextBtn").style.display="block";
+  }
+
+  function nextQuestion(){
+    currentQuestion++;
+
+    if(currentQuestion < questions.length){
+      loadQuestion();
+    } else {
+      clearInterval(timer);
+      document.getElementById("progress").style.width = "100%";
+
+      document.getElementById("quizBox").innerHTML = `
+        <div class="quiz-title">🎉 Quiz Completed!</div>
+
+        <h2 style="text-align:center; color:cyan; font-size:30px;">Result</h2>
+
+        <p style="text-align:center; margin-top:15px; font-size:22px;">
+          Your Score: <span style="color:#00ff6a; font-weight:bold;">${score}</span> / ${questions.length}
+        </p>
+
+        <p style="text-align:center; margin-top:10px; font-size:18px; color:#aaa;">
+          Thanks for playing Quiz World 😄
+        </p>
+
+        <button style="
+          margin-top:20px;
+          width:100%;
+          padding:12px;
+          border:none;
+          border-radius:15px;
+          background:linear-gradient(90deg,#ff0080,#00d9ff);
+          font-size:18px;
+          font-weight:bold;
+          cursor:pointer;
+        " onclick="location.reload()">Restart Quiz 🔄</button>
+      `;
+    }
+  }
+</script>
+
+</body>
+</html>
